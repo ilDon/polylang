@@ -4,6 +4,13 @@ class Flags_Test extends PLL_UnitTestCase {
 
 	private $pll_env;
 
+	/**
+	 * Language properties from {@see PLL_Settings::get_predefined_languages()} to be added as a new language.
+	 *
+	 * @var array
+	 */
+	private static $new_language;
+
 	static function wpSetUpBeforeClass() {
 		parent::wpSetUpBeforeClass();
 
@@ -12,12 +19,17 @@ class Flags_Test extends PLL_UnitTestCase {
 
 		@mkdir( WP_CONTENT_DIR . '/polylang' );
 		copy( dirname( __FILE__ ) . '/../data/fr_FR.png', WP_CONTENT_DIR . '/polylang/fr_FR.png' );
+
+		self::$new_language = PLL_Settings::get_predefined_languages()['de_CH'];
+		copy( dirname( __FILE__ ) . '/../data/de_CH.png', WP_CONTENT_DIR . '/polylang/de_CH.png' );
 	}
 
 	static function wpTearDownAfterClass() {
 		parent::wpTearDownAfterClass();
 
 		unlink( WP_CONTENT_DIR . '/polylang/fr_FR.png' );
+		unlink( WP_CONTENT_DIR . '/polylang/fr_CH.png' );
+		unlink( WP_CONTENT_DIR . '/polylang/de_CH.png' );
 		rmdir( WP_CONTENT_DIR . '/polylang' );
 	}
 
@@ -28,6 +40,10 @@ class Flags_Test extends PLL_UnitTestCase {
 		$this->pll_env = new PLL_Frontend( $links_model );
 		$this->pll_env->init();
 		$this->pll_env->model->cache->clean();
+	}
+
+	function tearDown() {
+		remove_filter( 'pll_custom_flag', array( $this, 'override_custom_flag' ) );
 	}
 
 	function test_default_flag() {
@@ -62,5 +78,23 @@ class Flags_Test extends PLL_UnitTestCase {
 		$this->assertContains( 'https', $lang->get_display_flag_url() );
 
 		unset( $_SERVER['HTTPS'] );
+	}
+
+	function test_remove_flag_inline_style_in_saved_language() {
+		self::create_language( 'de_CH_informal' );
+		copy( dirname( __FILE__ ) . '/../data/de_CH.png', WP_CONTENT_DIR . '/polylang/de_CH_informal.png' );
+		$language = $this->pll_env->model->get_language( 'de_CH_informal' );
+
+		$this->assertNotContains( 'style', $language->get_display_flag() );
+		$this->assertNotContains( 'width', $language->get_display_flag() );
+		$this->assertNotContains( 'height', $language->get_display_flag() );
+	}
+
+	function test_remove_flag_inline_style_in_new_language() {
+		$language = PLL_Language::create( self::$new_language );
+
+		$this->assertNotContains( 'style', $language->get_display_flag() );
+		$this->assertNotContains( 'width', $language->get_display_flag() );
+		$this->assertNotContains( 'height', $language->get_display_flag() );
 	}
 }
