@@ -34,6 +34,8 @@ class Flags_Test extends PLL_UnitTestCase {
 	}
 
 	function setUp() {
+		parent::setUp();
+
 		$options       = array_merge( PLL_Install::get_default_options(), array( 'default_lang' => 'en_US' ) );
 		$model         = new PLL_Model( $options );
 		$links_model   = new PLL_Links_Default( $model );
@@ -44,6 +46,8 @@ class Flags_Test extends PLL_UnitTestCase {
 
 	function tearDown() {
 		remove_filter( 'pll_custom_flag', array( $this, 'override_custom_flag' ) );
+
+		parent::tearDown();
 	}
 
 	function test_default_flag() {
