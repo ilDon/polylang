@@ -2,6 +2,11 @@
 
 class Flags_Test extends PLL_UnitTestCase {
 
+	/**
+	 * Instance of the Polylang context for these tests.
+	 *
+	 * @var PLL_Frontend
+	 */
 	private $pll_env;
 
 	/**
@@ -10,6 +15,12 @@ class Flags_Test extends PLL_UnitTestCase {
 	 * @var array
 	 */
 	private static $new_language;
+
+	/**
+	 *
+	 * @var string
+	 */
+	private static $flag_de_Ch_informal = WP_CONTENT_DIR . '/polylang/de_CH_informal.png';
 
 	static function wpSetUpBeforeClass() {
 		parent::wpSetUpBeforeClass();
@@ -29,6 +40,9 @@ class Flags_Test extends PLL_UnitTestCase {
 
 		unlink( WP_CONTENT_DIR . '/polylang/fr_FR.png' );
 		unlink( WP_CONTENT_DIR . '/polylang/de_CH.png' );
+		if ( file_exists( self::$flag_de_Ch_informal ) ) {
+			unlink( self::$flag_de_Ch_informal );
+		}
 		rmdir( WP_CONTENT_DIR . '/polylang' );
 	}
 
@@ -79,7 +93,7 @@ class Flags_Test extends PLL_UnitTestCase {
 
 	function test_remove_flag_inline_style_in_saved_language() {
 		self::create_language( 'de_CH_informal' );
-		copy( dirname( __FILE__ ) . '/../data/de_CH.png', WP_CONTENT_DIR . '/polylang/de_CH_informal.png' );
+		copy( dirname( __FILE__ ) . '/../data/de_CH.png', self::$flag_de_Ch_informal );
 		$language = $this->pll_env->model->get_language( 'de_CH_informal' );
 
 		$this->assertNotContains( 'style', $language->get_display_flag() );
