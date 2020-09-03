@@ -28,7 +28,6 @@ class Flags_Test extends PLL_UnitTestCase {
 		parent::wpTearDownAfterClass();
 
 		unlink( WP_CONTENT_DIR . '/polylang/fr_FR.png' );
-		unlink( WP_CONTENT_DIR . '/polylang/fr_CH.png' );
 		unlink( WP_CONTENT_DIR . '/polylang/de_CH.png' );
 		rmdir( WP_CONTENT_DIR . '/polylang' );
 	}
