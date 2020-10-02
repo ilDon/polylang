@@ -53,6 +53,7 @@ class PLL_Filters {
 
 		// Personal data exporter
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_personal_data_exporter' ), 0 ); // Since WP 4.9.6
+		add_action( 'in_widget_form', array( $this, 'in_widget_form' ), 10, 3 );
 	}
 
 	/**
@@ -367,5 +368,43 @@ class PLL_Filters {
 			'data' => $data_to_export,
 			'done' => true,
 		);
+	}
+	/**
+	 * Modifies the widgets forms to add our language dropdown list
+	 *
+	 * @since 0.3
+	 *
+	 * @param object $widget   Widget instance
+	 * @param null   $return   Not used
+	 * @param array  $instance Widget settings
+	 */
+	public function in_widget_form( $widget, $return, $instance ) {
+		$screen = get_current_screen();
+
+		// Test the Widgets screen and the Customizer to avoid displaying the option in page builders
+		// Saving the widget reloads the form. And curiously the action is in $_REQUEST but neither in $_POST, nor in $_GET.
+		if ( ( isset( $screen ) && 'widgets' === $screen->base ) || ( isset( $_REQUEST['action'] ) && 'save-widget' === $_REQUEST['action'] ) || isset( $GLOBALS['wp_customize'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$dropdown = new PLL_Walker_Dropdown();
+
+			$dropdown_html = $dropdown->walk(
+				array_merge(
+					array( (object) array( 'slug' => 0, 'name' => __( 'All languages', 'polylang' ) ) ),
+					$this->model->get_languages_list()
+				),
+				-1,
+				array(
+					'name'     => $widget->id . '_lang_choice',
+					'class'    => 'tags-input pll-lang-choice',
+					'selected' => empty( $instance['pll_lang'] ) ? '' : $instance['pll_lang'],
+				)
+			);
+
+			printf(
+				'<p><label for="%1$s">%2$s %3$s</label></p>',
+				esc_attr( $widget->id . '_lang_choice' ),
+				esc_html__( 'The widget is displayed for:', 'polylang' ),
+				$dropdown_html // phpcs:ignore WordPress.Security.EscapeOutput
+			);
+		}
 	}
 }
