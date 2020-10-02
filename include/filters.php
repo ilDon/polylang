@@ -54,6 +54,7 @@ class PLL_Filters {
 		// Personal data exporter
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_personal_data_exporter' ), 0 ); // Since WP 4.9.6
 		add_action( 'in_widget_form', array( $this, 'in_widget_form' ), 10, 3 );
+		add_filter( 'widget_update_callback', array( $this, 'widget_update_callback' ), 10, 4 );
 	}
 
 	/**
@@ -406,5 +407,29 @@ class PLL_Filters {
 				$dropdown_html // phpcs:ignore WordPress.Security.EscapeOutput
 			);
 		}
+	}
+
+	/**
+	 * Called when widget options are saved
+	 * saves the language associated to the widget
+	 *
+	 * @since 0.3
+	 *
+	 * @param array  $instance     Widget options
+	 * @param array  $new_instance Not used
+	 * @param array  $old_instance Not used
+	 * @param object $widget       WP_Widget object
+	 * @return array Widget options
+	 */
+	public function widget_update_callback( $instance, $new_instance, $old_instance, $widget ) {
+		$key = $widget->id . '_lang_choice';
+
+		if ( ! empty( $_POST[ $key ] ) && $lang = $this->model->get_language( sanitize_key( $_POST[ $key ] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$instance['pll_lang'] = $lang->slug;
+		} else {
+			unset( $instance['pll_lang'] );
+		}
+
+		return $instance;
 	}
 }
