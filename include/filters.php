@@ -380,7 +380,7 @@ class PLL_Filters {
 	 * @param array  $instance Widget settings
 	 */
 	public function in_widget_form( $widget, $return, $instance ) {
-		$screen = get_current_screen();
+		// $screen = get_current_screen();
 
 		// Test the Widgets screen and the Customizer to avoid displaying the option in page builders
 		// Saving the widget reloads the form. And curiously the action is in $_REQUEST but neither in $_POST, nor in $_GET.
