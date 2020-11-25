@@ -23,6 +23,7 @@ trait PLL_UnitTestCase_Trait {
 		self::$polylang->options['hide_default'] = 0; // Force option to pre 2.1.5 value otherwise phpunit tests break on Travis.
 		self::$polylang->model = new PLL_Admin_Model( self::$polylang->options );
 		self::$polylang->links_model = self::$polylang->model->get_links_model(); // We always need a links model due to PLL_Language::set_home_url().
+		self::$polylang->default_category = new PLL_Admin_Default_Category( self::$polylang );
 	}
 
 	/**
