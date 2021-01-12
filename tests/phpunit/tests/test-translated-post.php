@@ -140,4 +140,20 @@ class Translated_Post_Test extends PLL_UnitTestCase {
 		$this->assertTrue( self::$polylang->model->post->current_user_can_read( $post_id ) );
 		$this->assertTrue( self::$polylang->model->post->current_user_can_read( $post_id, 'edit' ) );
 	}
+
+	/**
+	 * @covers PLL_Translated_Object::save_translations()
+	 */
+	public function test_dont_save_translations_with_incorrect_language() {
+		$post_id = $this->factory()->post->create();
+		self::$polylang->model->post->set_language( $post_id, 'en' );
+
+		$options = PLL_Install::get_default_options();
+		$model = new PLL_Model( $options );
+		$model->post = new PLL_Translated_Post( $model );
+
+		$model->post->save_translations( $post_id, array( 'fr' => $post_id ) );
+
+		$this->assertNotEquals( $model->post->get_translations( $post_id )['fr'], $post_id );
+	}
 }
